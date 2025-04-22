@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from users.models import User
 
@@ -8,6 +9,11 @@ class SignUpSerializer(serializers.ModelSerializer):
     Serializer for user signup.
     """
 
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all(), message="This email is already in use.")
+        ]
+    )
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
 
@@ -31,6 +37,14 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This nickname is already in use.")
         return nickname
 
+    def validate_password1(self, password):
+        """
+        비밀번호 최소 길이 유효성 검사
+        """
+        if len(password) < 8:
+            raise serializers.ValidationError("Password must be at least 8 characters long.")
+        return password
+
     def validate(self, data):
         """
         비밀번호 일치 여부 검사
@@ -49,9 +63,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         """
         password = validated_data.pop("password1")
         _ = validated_data.pop("password2", None)
-
-        if len(password) < 8:
-            raise serializers.ValidationError("Password must be at least 8 characters long.")
 
         user = User(**validated_data)
         user.set_password(password)
