@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from users.models import User
+from users.validators.password import validate_password_policy
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -39,11 +40,9 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def validate_password1(self, password):
         """
-        비밀번호 최소 길이 유효성 검사
+        비밀번호 정책 검사
         """
-        if len(password) < 8:
-            raise serializers.ValidationError("Password must be at least 8 characters long.")
-        return password
+        return validate_password_policy(password)
 
     def validate(self, data):
         """

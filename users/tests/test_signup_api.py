@@ -13,8 +13,8 @@ class SignUpAPITestCase(APITestCase):
         data = {
             "email": "test@devlog.com",
             "nickname": "tester",
-            "password1": "testpassword999",
-            "password2": "testpassword999"
+            "password1": "testpassword159",
+            "password2": "testpassword159"
         }
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -24,16 +24,16 @@ class SignUpAPITestCase(APITestCase):
         data1 = {
             "email": "test@devlog.com",
             "nickname": "tester1",
-            "password1": "testpassword999",
-            "password2": "testpassword999"
+            "password1": "testpassword159",
+            "password2": "testpassword159"
         }
         self.client.post(self.url, data1, format="json")
 
         data2 = {
             "email": "test@devlog.com",
             "nickname": "tester2",
-            "password1": "testpassword999",
-            "password2": "testpassword999"
+            "password1": "testpassword159",
+            "password2": "testpassword159"
         }
         response = self.client.post(self.url, data2, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -43,16 +43,16 @@ class SignUpAPITestCase(APITestCase):
         data1 = {
             "email": "test1@devlog.com",
             "nickname": "tester",
-            "password1": "testpassword999",
-            "password2": "testpassword999"
+            "password1": "testpassword159",
+            "password2": "testpassword159"
         }
         self.client.post(self.url, data1, format="json")
 
         data2 = {
             "email": "test2@devlog.com",
             "nickname": "tester",
-            "password1": "testpassword999",
-            "password2": "testpassword999"
+            "password1": "testpassword159",
+            "password2": "testpassword159"
         }
         response = self.client.post(self.url, data2, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -62,19 +62,61 @@ class SignUpAPITestCase(APITestCase):
         data = {
             "email": "test@devlog.com",
             "nickname": "tester",
-            "password1": "pw999",
-            "password2": "pw999"
+            "password1": "pw159",
+            "password2": "pw159"
         }
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data.get("password1")[0], "Password must be at least 8 characters long.")
 
-    def test_signup_api_mismatch_password(self):
+    def test_signup_api_combination_password(self):
+        data = {
+            "email": "test@devlog.com",
+            "nickname": "tester",
+            "password1": "135792468",
+            "password2": "153792468"
+        }
+        response = self.client.post(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data.get("password1")[0],
+            "Password must include at least 2 types: uppercase, lowercase, numbers."
+        )
+
+    def test_signup_api_repeat_char_password(self):
         data = {
             "email": "test@devlog.com",
             "nickname": "tester",
             "password1": "testpassword999",
-            "password2": "testpassword000"
+            "password2": "testpassword999"
+        }
+        response = self.client.post(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data.get("password1")[0],
+            "Password cannot contain the same character 3 times in a row."
+        )
+
+    def test_signup_api_consecutive_char_password(self):
+        data = {
+            "email": "test@devlog.com",
+            "nickname": "tester",
+            "password1": "abcpassword159",
+            "password2": "abcpassword159"
+        }
+        response = self.client.post(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data.get("password1")[0],
+            "Password cannot contain 3 or more consecutive characters."
+        )
+
+    def test_signup_api_mismatch_password(self):
+        data = {
+            "email": "test@devlog.com",
+            "nickname": "tester",
+            "password1": "testpassword159",
+            "password2": "testpassword357"
         }
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
