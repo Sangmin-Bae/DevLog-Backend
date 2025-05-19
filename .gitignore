@@ -274,3 +274,5 @@ cython_debug/
 # env file directory
 envs/
 
+# jwt keys directory
+secrets/

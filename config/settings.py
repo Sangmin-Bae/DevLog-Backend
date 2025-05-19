@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 
 from pathlib import Path
+from datetime import timedelta
 from decouple import Config, RepositoryEnv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -138,3 +139,25 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# SIMPLEJWT setting
+
+JWT_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, config('JWT_PRIVATE_KEY_PATH'))
+JWT_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, config('JWT_PUBLIC_KEY_PATH'))
+
+with open(JWT_PRIVATE_KEY_PATH, "r", encoding="utf-8") as f:
+    PRIVATE_KEY = f.read()
+
+with open(JWT_PUBLIC_KEY_PATH, "r", encoding="utf-8") as f:
+    PUBLIC_KEY = f.read()
+
+SIMPLE_JWT = {
+    "ALGORITHM": "RS256",
+    "SIGNING_KEY": PRIVATE_KEY,
+    "VERIFYING_KEY": PUBLIC_KEY,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
